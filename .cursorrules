@@ -1,0 +1,12 @@
+## Overthinkistan Backend - Cursor Rules
+
+### 📌 Proje Amacı
+Overthinkistan, insanların hayatın ağırlıklarından ve sorunlarından uzaklaşmasını sağlayacak mizahi ve rehber içerikler sunan bir platformdur.
+Kullanıcılar anonim hikayelerini paylaşabilir, mizahi quizler çözebilir ve etkileşimli bir topluluğa dahil olabilirler.
+
+---
+
+### 🚀 Kullanılan Teknolojiler
+- **MongoDB** → Veritabanı olarak kullanılacak.
+- **Nest.js (Backend)** → API servisleri için tercih ediliyor.
+- **NextAuth.js** → Kullanıcı kimlik doğrulama ve OAuth entegrasyonu için.
