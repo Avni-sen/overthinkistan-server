@@ -7,10 +7,11 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { User, UserDocument } from './schemas/user.schema';
+import { User, UserDocument } from '../users/schemas/user.schema';
 import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { RegisterDto } from './dto/register.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { DataStatus } from '../common/enums/data-status.enum';
 
 @Injectable()
 export class AuthService {
@@ -51,6 +52,7 @@ export class AuthService {
       email,
       password: hashedPassword,
       termsAndConditions,
+      dataStatus: DataStatus.ACTIVE,
     });
 
     try {
@@ -71,7 +73,10 @@ export class AuthService {
     authCredentialsDto: AuthCredentialsDto,
   ): Promise<{ token: string }> {
     const { email, password } = authCredentialsDto;
-    const user = await this.userModel.findOne({ email });
+    const user = await this.userModel.findOne({
+      email,
+      dataStatus: DataStatus.ACTIVE,
+    });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = this.generateToken(user);
@@ -88,6 +93,7 @@ export class AuthService {
       username: user.username,
       sub: user['_id'],
       role: user.role,
+      refId: user.refId,
     };
     return this.jwtService.sign(payload);
   }
