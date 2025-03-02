@@ -11,6 +11,8 @@ import {
   UseInterceptors,
   UploadedFile,
   Delete,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -136,33 +138,25 @@ export class UsersController extends BaseController<User, UserDocument> {
     @UploadedFile() file: any,
     @Req() req: any,
   ): Promise<{ url: string }> {
+    if (!file) {
+      throw new HttpException('Dosya bulunamadı', HttpStatus.BAD_REQUEST);
+    }
+
     const { refId } = req.user;
 
     // Dosya URL'sini oluştur (sunucu URL'si + dosya yolu)
     const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
 
-    // Kullanıcının profil fotoğrafını güncelle
-    await this.usersService.updateByRefIdAsync(refId, {
-      profilePhoto: fileUrl,
-    });
+    try {
+      const updateDto: UpdateProfilePhotoDto = { profilePhoto: fileUrl };
+      await this.usersService.updateProfilePhoto(refId, updateDto);
 
-    return { url: fileUrl };
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Put('profile-photo')
-  @ApiOperation({ summary: 'Profil fotoğrafını güncelle' })
-  @ApiResponse({
-    status: 200,
-    description: 'Profil fotoğrafı başarıyla güncellendi.',
-  })
-  @ApiResponse({ status: 404, description: 'Kullanıcı bulunamadı.' })
-  @ApiResponse({ status: 400, description: 'Geçersiz giriş.' })
-  async updateProfilePhoto(
-    @Req() req: any,
-    @Body() updateProfilePhotoDto: UpdateProfilePhotoDto,
-  ): Promise<User> {
-    const { refId } = req.user;
-    return this.usersService.updateProfilePhoto(refId, updateProfilePhotoDto);
+      return { url: fileUrl };
+    } catch (error) {
+      throw new HttpException(
+        'Profil fotoğrafı güncellenirken bir hata oluştu',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

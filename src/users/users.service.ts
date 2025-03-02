@@ -65,12 +65,23 @@ export class UsersService extends BaseService<User, UserDocument> {
     refId: string,
     updateProfilePhotoDto: UpdateProfilePhotoDto,
   ): Promise<User> {
-    const user = await this.findByRefId(refId);
+    try {
+      const user = await this.findByRefId(refId);
 
-    if (!user) {
-      throw new NotFoundException(`RefId ${refId} ile kullanıcı bulunamadı`);
+      if (!user) {
+        throw new NotFoundException(`RefId ${refId} ile kullanıcı bulunamadı`);
+      }
+
+      // Profil fotoğrafını güncelle
+      const updatedUser = await this.updateByRefIdAsync(refId, {
+        profilePhoto: updateProfilePhotoDto.profilePhoto,
+      });
+
+      return updatedUser;
+    } catch (error) {
+      throw new NotFoundException(
+        `Profil fotoğrafı güncellenirken bir hata oluştu: ${error.message}`,
+      );
     }
-
-    return this.updateByRefIdAsync(refId, updateProfilePhotoDto);
   }
 }
