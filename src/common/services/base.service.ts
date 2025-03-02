@@ -18,7 +18,7 @@ export abstract class BaseService<T extends BaseModel, D extends Document> {
   async getByIdAsync(id: string): Promise<T> {
     const entity = await this.model
       .findOne({
-        _id: id,
+        refId: id,
         dataStatus: DataStatus.ACTIVE,
       })
       .exec();
@@ -56,8 +56,6 @@ export abstract class BaseService<T extends BaseModel, D extends Document> {
       createdBy: userId,
       dataStatus: DataStatus.ACTIVE,
     });
-
-    console.log(createdEntity);
 
     return (await createdEntity.save()) as unknown as T;
   }

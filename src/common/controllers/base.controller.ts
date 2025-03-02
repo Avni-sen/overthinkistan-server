@@ -1,9 +1,19 @@
-import { Body, Delete, Get, Param, Post, Put, Req } from '@nestjs/common';
+import {
+  Body,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse } from '@nestjs/swagger';
 import { BaseService } from '../services/base.service';
 import { BaseModel } from '../models/base.model';
 import { Document } from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 export abstract class BaseController<
   T extends BaseModel,

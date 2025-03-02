@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Put, Param, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Put,
+  Param,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiOperation,
@@ -12,6 +20,7 @@ import { CategoryService } from '../services/category.service';
 import { CreateCategoryDto } from '../dto/create-category.dto';
 import { UpdateCategoryDto } from '../dto/update-category.dto';
 import { JwtService } from '@nestjs/jwt';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Categories')
 @Controller('categories')
