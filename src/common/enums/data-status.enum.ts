@@ -1,5 +1,5 @@
 export enum DataStatus {
-  ACTIVE = 'active',
-  PASSIVE = 'passive',
-  DELETED = 'deleted',
+  ACTIVE = 1,
+  PASSIVE = 2,
+  DELETED = 3,
 }

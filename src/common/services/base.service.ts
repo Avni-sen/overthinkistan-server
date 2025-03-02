@@ -12,7 +12,6 @@ export abstract class BaseService<T extends BaseModel, D extends Document> {
       ...filter,
       dataStatus: DataStatus.ACTIVE,
     };
-
     return this.model.find(defaultFilter).exec() as unknown as T[];
   }
 
