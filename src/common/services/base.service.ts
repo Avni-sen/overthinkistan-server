@@ -57,6 +57,8 @@ export abstract class BaseService<T extends BaseModel, D extends Document> {
       dataStatus: DataStatus.ACTIVE,
     });
 
+    console.log(createdEntity);
+
     return (await createdEntity.save()) as unknown as T;
   }
 

@@ -4,9 +4,6 @@ import {
   Post,
   Body,
   Param,
-  Delete,
-  Put,
-  Query,
   UseGuards,
   Req,
   HttpStatus,
@@ -17,7 +14,6 @@ import {
 import { PostsService } from '../services/posts.service';
 import { CreatePostDto, UpdatePostDto } from '../dto';
 import {
-  ApiBearerAuth,
   ApiBody,
   ApiConsumes,
   ApiOperation,
@@ -31,17 +27,9 @@ import { JwtService } from '@nestjs/jwt';
 import { Post as PostModel } from '../models/post.model';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from 'src/common/utils/file-upload.utils';
-import { UpdatePostPhotoDto } from '../dto/update-post-photo.dto';
+import { PostWithRelationsDto } from '../dto/post-with-relations.dto';
 
-// Request tipini genişletiyoruz
-interface RequestWithUser extends Request {
-  user: {
-    refId: string;
-    [key: string]: any;
-  };
-}
-
-@ApiTags('posts')
+@ApiTags('Posts')
 @Controller('posts')
 export class PostsController extends BaseController<
   PostModel,
@@ -55,25 +43,15 @@ export class PostsController extends BaseController<
   ) {
     super(postsService, jwtService);
   }
+
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Yeni kategori oluştur' })
   @ApiBody({ type: CreatePostDto })
-  @ApiOperation({ summary: 'Yeni bir post oluştur' })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    description: 'Post başarıyla oluşturuldu',
-  })
-  @ApiResponse({
-    status: HttpStatus.BAD_REQUEST,
-    description: 'Geçersiz veri',
-  })
-  @ApiResponse({
-    status: HttpStatus.UNAUTHORIZED,
-    description: 'Yetkilendirme hatası',
-  })
+  @ApiResponse({ status: 201, description: 'Post başarıyla oluşturuldu.' })
+  @ApiResponse({ status: 400, description: 'Geçersiz giriş.' })
   async createAsync(
     @Body() createPostDto: CreatePostDto,
-    @Req() req: RequestWithUser,
+    @Req() req: any,
   ): Promise<PostModel> {
     const userRefId = this.extractUserRefIdFromRequest(req);
     return this.postsService.createAsync(createPostDto, userRefId);
@@ -163,7 +141,19 @@ export class PostsController extends BaseController<
     if (!file) {
       throw new HttpException('Dosya bulunamadı', HttpStatus.BAD_REQUEST);
     }
-    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/posts/${file.filename}`;
+    const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${file.filename}`;
     return { url: fileUrl };
+  }
+
+  @Get('get-all-posts-with-relations')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Tüm postları ilişkili verilerle birlikte getir' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Postlar başarıyla getirildi',
+    type: [PostWithRelationsDto],
+  })
+  getAllPostsWithRelations() {
+    return this.postsService.getAllPostsWithRelations();
   }
 }

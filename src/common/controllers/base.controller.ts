@@ -39,17 +39,23 @@ export abstract class BaseController<
    */
   protected extractUserRefIdFromRequest(req: any): string | undefined {
     let userRefId: string | undefined = undefined;
+    console.log(req);
 
     try {
       // Cookie'den token'ı al
       if (this.jwtService && req.cookies && req.cookies.token) {
-        // "Bearer " önekini kaldır
         const tokenValue = req.cookies.token.replace('Bearer ', '');
         const decodedToken = this.jwtService.verify(tokenValue, {
           secret: process.env.JWT_SECRET,
         });
         userRefId = decodedToken.refId;
-        console.log('Token çözümlendi, userRefId:', userRefId);
+      } else if (req.headers.authorization) {
+        // yoksa auth header'dan al
+        const tokenValue = req.headers.authorization.replace('Bearer ', '');
+        const decodedToken = this.jwtService.verify(tokenValue, {
+          secret: process.env.JWT_SECRET,
+        });
+        userRefId = decodedToken.refId;
       } else {
         console.log('Cookie içinde token bulunamadı');
       }
